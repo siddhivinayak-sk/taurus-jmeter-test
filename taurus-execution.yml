@@ -1,0 +1,60 @@
+modules:
+  jmeter:
+    path: ~/.bzt/jmeter-taurus/{version}/
+    download-link: https://dlcdn.apache.org//jmeter/binaries/apache-jmeter-{version}.zip
+    version: 5.4.3
+    force-ctg: true
+    detect-plugins: true
+    fix-jars: true
+    plugins:
+    - jpgc-casutg
+    - jpgc-dummy
+    - jpgc-ffw
+    - jpgc-fifo
+    - jpgc-functions
+    - jpgc-json
+    - jpgc-perfmon
+    - jpgc-prmctl
+    - jpgc-tst
+    - jmeter-ftp
+    plugins-manager:
+      download-link: https://search.maven.org/remotecontent?filepath=kg/apc/jmeter-plugins-manager/{version}/jmeter-plugins-manager-{version}.jar
+      version: 1.7
+    command-runner:
+      download-link: https://search.maven.org/remotecontent?filepath=kg/apc/cmdrunner/{version}/cmdrunner-{version}.jar
+      version: 2.2
+    gui: false
+    cmdline: --loglevel DEBUG
+    system-properties:
+      sun.net.http.allowRestrictedHeaders: "true"
+    properties:
+      log_level.jmeter: WARN
+      log_level.jmeter.threads: DEBUG
+      my_conc: 2
+      my_hold: 120
+
+execution:
+ - scenario: scenario1
+    
+    
+scenarios:
+  scenario1:
+    script: main.jmx
+    concurrency: ${__P(my_conc, 1)}
+    ramp-up: 5
+    hold-for: ${__P(my_hold, 1)}
+  
+
+reporting:
+- module: final-stats
+  summary: true
+  percentiles: true
+  failed-labels: false
+  test-duration: true
+  dump-xml: results.xml
+  dump-csv: results.csv
+- module: passfail
+  criteria:
+  - success<100%, continue as failed
+- module: junit-xml
+  data-source: sample-labels
